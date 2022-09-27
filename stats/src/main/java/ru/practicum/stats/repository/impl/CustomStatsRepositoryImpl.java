@@ -34,7 +34,7 @@ public class CustomStatsRepositoryImpl implements CustomStatsRepository {
         ));
         query.groupBy(endpointHit.get("app"), endpointHit.get("uri"), endpointHit.get("ip"));
         predicates.add(criteriaBuilder.between(endpointHit.get("timestamp"), start, end));
-        if(uris != null) {
+        if (uris != null) {
             predicates.add(endpointHit.in((Object[]) uris));
         }
         query.where(predicates.toArray(new Predicate[0]));
