@@ -12,7 +12,7 @@ import ru.practicum.main.model.dto.EndpointHit;
 import java.util.Map;
 
 @Service
-public class EventClient extends BaseClient{
+public class EventClient extends BaseClient {
 
     @Autowired
     public EventClient(@Value("${stats.url}") String serverUrl, RestTemplateBuilder builder) {

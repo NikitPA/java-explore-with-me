@@ -38,8 +38,7 @@ public class CategoryController {
     @GetMapping("/categories")
     public ResponseEntity<List<CategoryDto>> getCategories(
             @RequestParam(name = "from", defaultValue = "0") int from,
-            @RequestParam(name = "size", defaultValue = "10") int size)
-    {
+            @RequestParam(name = "size", defaultValue = "10") int size) {
         return new ResponseEntity<>(categoryService.findCategories(from, size), HttpStatus.OK);
     }
 

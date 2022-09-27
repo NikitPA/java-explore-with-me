@@ -18,10 +18,9 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    
     private final UserRepository userRepository;
     private final ModelMapper mapper;
-    
+
     public UserDto createUser(UserDto userDto) {
         User user = mapper.map(userDto, User.class);
         User userSave = userRepository.save(user);
@@ -38,7 +37,7 @@ public class UserServiceImpl implements UserService {
     public List<UserDto> findUsers(int from, int size, Integer[] ids) {
         int page = from / size;
         PageRequest pageRequest = PageRequest.of(page, size);
-        if(ids != null) {
+        if (ids != null) {
             List<User> usersByIds = findUsersForIds(ids);
             return usersByIds.stream()
                     .map(user -> mapper.map(user, UserDto.class))

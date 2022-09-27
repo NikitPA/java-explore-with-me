@@ -80,7 +80,7 @@ public class CompilationServiceImpl implements CompilationService {
     public List<CompilationDto> findCompilations(int from, int size, Boolean pinned) {
         int page = from / size;
         PageRequest pageRequest = PageRequest.of(page, size);
-        if(pinned == null) {
+        if (pinned == null) {
             Page<Compilation> compilations = compilationRepository.findAll(pageRequest);
             return compilations.stream()
                     .map(compilation -> mapper.map(compilation, CompilationDto.class))
