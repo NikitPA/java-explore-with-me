@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.main.model.Location;
 
+import javax.validation.constraints.Future;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
@@ -21,14 +24,16 @@ public class NewEventDto {
     private String description;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @Future
     private LocalDateTime eventDate;
 
+    @NotNull
     private Location location;
 
     private boolean paid = false;
 
+    @PositiveOrZero
     private int participantLimit = 0;
-
 
     private boolean requestModeration = true;
 

@@ -38,7 +38,7 @@ public class EventServiceImpl implements EventService {
     private final ModelMapper mapper;
 
     @Override
-    public EventFullDto editService(AdminUpdateEventRequest updateEvent, int eventId) {
+    public EventFullDto editEvent(AdminUpdateEventRequest updateEvent, int eventId) {
         Event event = findById(eventId);
         if (updateEvent.getAnnotation() != null) {
             event.setAnnotation(updateEvent.getAnnotation());
@@ -84,7 +84,7 @@ public class EventServiceImpl implements EventService {
             eventRepository.save(event);
             return mapper.map(event, EventFullDto.class);
         }
-        throw new RuntimeException(
+        throw new IllegalArgumentException(
                 MessageFormat.format("StateEvent ({0}) isn't PENDING or the publication date " +
                         "should be an hour later than the start dateEvent ({1})", eventState, eventDate)
         );
@@ -99,7 +99,7 @@ public class EventServiceImpl implements EventService {
             eventRepository.save(event);
             return mapper.map(event, EventFullDto.class);
         }
-        throw new RuntimeException(
+        throw new IllegalArgumentException(
                 MessageFormat.format("StateEvent ({0}) isn't PENDING.", eventState)
         );
     }

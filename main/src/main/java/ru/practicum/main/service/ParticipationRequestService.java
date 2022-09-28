@@ -1,21 +1,10 @@
 package ru.practicum.main.service;
 
-import ru.practicum.main.model.dto.*;
-import ru.practicum.main.model.UpdateEventRequest;
+import ru.practicum.main.model.dto.ParticipationRequestDto;
 
 import java.util.List;
 
-public interface UserAndEventService {
-
-    List<EventShortDto> findUserEvents(int userId, int from, int size);
-
-    EventFullDto changeEvent(int userId, UpdateEventRequest updateEventRequest);
-
-    EventFullDto createEvent(int userId, NewEventDto newEventDto);
-
-    EventFullDto findEvent(int userId, int eventId);
-
-    EventFullDto cancelEvent(int userId, int eventId);
+public interface ParticipationRequestService {
 
     List<ParticipationRequestDto> getInformationRequests(int userId, int eventId);
 
@@ -28,4 +17,5 @@ public interface UserAndEventService {
     List<ParticipationRequestDto> findRequestsUser(int userId);
 
     ParticipationRequestDto cancelYourParticipationRequest(int userId, int reqId);
+
 }

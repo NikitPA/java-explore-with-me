@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
-import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -15,6 +15,6 @@ public class NewCompilationDto {
     @NotBlank(message = "Title isn't empty")
     private String title;
 
-    private List<Integer> events;
+    private Set<Integer> events;
 
 }

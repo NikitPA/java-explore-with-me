@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "compilations")
@@ -24,6 +24,6 @@ public class Compilation {
     @JoinTable(name = "Compilation_Event",
             joinColumns = { @JoinColumn(name = "compilation_id") },
             inverseJoinColumns = { @JoinColumn(name = "event_id") })
-    private List<Event> events;
+    private Set<Event> events;
 
 }

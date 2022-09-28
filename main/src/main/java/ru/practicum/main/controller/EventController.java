@@ -25,7 +25,7 @@ public class EventController {
     @PutMapping("/admin/events/{eventId}")
     public ResponseEntity<EventFullDto> editEvent(@RequestBody AdminUpdateEventRequest updateEvent,
                                                   @PathVariable(name = "eventId") int eventId) {
-        return new ResponseEntity<>(eventService.editService(updateEvent, eventId), HttpStatus.OK);
+        return new ResponseEntity<>(eventService.editEvent(updateEvent, eventId), HttpStatus.OK);
     }
 
     @PatchMapping("/admin/events/{eventId}/publish")

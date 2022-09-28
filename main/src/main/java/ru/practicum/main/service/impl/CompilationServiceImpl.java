@@ -30,7 +30,7 @@ public class CompilationServiceImpl implements CompilationService {
         Compilation compilation = mapper.map(newCompilationDto, Compilation.class);
         compilation.setEvents(newCompilationDto.getEvents()
                 .stream().map(eventService::findById)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toSet()));
         Compilation compilationSave = compilationRepository.save(compilation);
         return mapper.map(compilationSave, CompilationDto.class);
     }

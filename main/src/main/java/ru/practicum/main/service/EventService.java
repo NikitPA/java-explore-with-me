@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface EventService {
 
-    EventFullDto editService(AdminUpdateEventRequest updateEvent, int eventId);
+    EventFullDto editEvent(AdminUpdateEventRequest updateEvent, int eventId);
 
     EventFullDto publishEvent(int eventId);
 

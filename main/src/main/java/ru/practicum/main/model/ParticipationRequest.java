@@ -24,7 +24,7 @@ public class ParticipationRequest {
     @ManyToOne
     private User requester;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(value = EnumType.STRING)
     private Status status;
 
 }
