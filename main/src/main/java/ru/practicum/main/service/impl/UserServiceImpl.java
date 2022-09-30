@@ -5,6 +5,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.exception.UserNotFoundException;
 import ru.practicum.main.model.User;
 import ru.practicum.main.model.dto.UserDto;
@@ -17,16 +18,19 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final ModelMapper mapper;
 
+    @Transactional
     public UserDto createUser(UserDto userDto) {
         User user = mapper.map(userDto, User.class);
         User userSave = userRepository.save(user);
         return mapper.map(userSave, UserDto.class);
     }
 
+    @Transactional
     @Override
     public void delete(int userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));

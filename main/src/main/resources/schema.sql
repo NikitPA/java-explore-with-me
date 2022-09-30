@@ -1,63 +1,64 @@
-create table categories (
+create table if not exists categories (
     id  serial not null,
-    name varchar(255),
+    name varchar(255) not null unique,
     primary key (id)
                         );
-create table compilation_event (
-    compilation_id int4 not null,
-    event_id int4 not null
-                               );
-create table compilations (
+create table if not exists users (
+    id  serial not null,
+    email varchar(255),
+    name varchar(55),
+    primary key (id)
+);
+create table if not exists compilations (
     id  serial not null,
     pinned boolean not null,
-    title varchar(255),
+    title varchar(255) not null,
     primary key (id)
                           );
-create table events (
+create table if not exists locations (
     id  serial not null,
-    annotation varchar(2000),
+    lat float4 not null,
+    lon float4 not null,
+    primary key (id),
+    constraint uq_lat_lon unique (lat, lon)
+);
+create table if not exists events (
+    id  serial not null,
+    annotation varchar(2000) not null,
     confirmed_requests int4 not null,
     created_on timestamp,
-    description varchar(7000),
+    description varchar(7000) not null,
     event_date timestamp,
     paid boolean not null,
     participant_limit int4 not null,
     published_on timestamp,
     request_moderation boolean not null,
-    state varchar(255), title varchar(120),
+    state varchar(255) not null,
+    title varchar(120) not null,
     views int4 not null,
-    category_id int4,
-    initiator_id int4,
-    location_id int4,
-    primary key (id)
+    category_id int4 not null,
+    initiator_id int4 not null,
+    location_id int4 not null,
+    primary key (id),
+    constraint fk_events_on_categories foreign key (category_id) references categories,
+    constraint fk_events_on_users foreign key (initiator_id) references users,
+    constraint fk_events_on_locations foreign key (location_id) references locations
                     );
-create table locations (
+create table if not exists requests (
     id  serial not null,
-    lat float4 not null,
-    lon float4 not null,
-    primary key (id)
-                       );
-create table requests (
-    id  serial not null,
-    created timestamp,
-    status varchar(255),
-    event_id int4,
-    requester_id int4,
-    primary key (id)
+    created timestamp not null,
+    status varchar(255) not null,
+    event_id int4 not null,
+    requester_id int4 not null,
+    primary key (id),
+    constraint uq_event_requester unique (event_id, requester_id),
+    constraint fk_requests_on_events foreign key (event_id) references events,
+    constraint fk_requests_on_users foreign key (requester_id) references users
                       );
-create table users (
-    id  serial not null,
-    email varchar(255),
-    name varchar(255),
-    primary key (id)
-                   );
-alter table categories add constraint UK_t8o6pivur7nn124jehx7cygw5 unique (name);
-alter table locations add constraint UK5kd1jdvx2b90kyrifb1714edc unique (lat, lon);
-alter table requests add constraint UKarb4jcc7yar9a3mxk937loo67 unique (event_id, requester_id);
-alter table compilation_event add constraint FKiriu17nlpdxqwhchs08741syt foreign key (event_id) references events;
-alter table compilation_event add constraint FKowxfw4s9mhp8kcp2g3349foxy foreign key (compilation_id) references compilations;
-alter table events add constraint FKo6mla8j1p5bokt4dxrlmgwc28 foreign key (category_id) references categories;
-alter table events add constraint FKgsyp7tc40dhju9fq5i767kyun foreign key (initiator_id) references users;
-alter table events add constraint FK7a9tiyl3gaugxrtjc2m97awui foreign key (location_id) references locations;
-alter table requests add constraint FKm7vtr0204t3xcymbx4sa9t1ot foreign key (event_id) references events;
-alter table requests add constraint FKeoax2t4j9i61p9lmon3009tr4 foreign key (requester_id) references users;
+create table if not exists compilation_event (
+    compilation_id int4 not null,
+    event_id int4 not null,
+    primary key (compilation_id, event_id),
+    constraint fk_compilation_event_on_event foreign key (event_id) references events,
+    constraint fk_compilation_event_on_compilation foreign key (compilation_id) references compilations
+);

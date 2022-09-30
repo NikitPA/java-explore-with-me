@@ -1,41 +1,52 @@
 package ru.practicum.main.model;
 
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "events")
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 public class Event {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Integer id;
 
-    @Column(length = 2000)
+    @Column(nullable = false)
+    @Size(min = 20, max = 2000)
     private String annotation;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
+    @JoinColumn(nullable = false)
     private Category category;
 
     private int confirmedRequests;
 
     private LocalDateTime createdOn;
 
-    @Column(length = 7000)
+    @Column(nullable = false)
+    @Size(min = 20, max = 7000)
     private String description;
 
     private LocalDateTime eventDate;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
+    @JoinColumn(nullable = false)
     private User initiator;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
+    @JoinColumn(nullable = false)
     private Location location;
 
     private boolean paid;
@@ -47,14 +58,20 @@ public class Event {
     private boolean requestModeration;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private State state;
 
-    @Column(length = 120)
+    @Column(nullable = false)
+    @Size(min = 3, max = 120)
     private String title;
+
+    @ManyToMany(mappedBy = "events", cascade = CascadeType.ALL)
+    private List<Compilation> compilations;
 
     private int views;
 
-    @ManyToMany(mappedBy = "events")
-    private List<Compilation> compilations;
+    public void addView() {
+        views++;
+    }
 
 }

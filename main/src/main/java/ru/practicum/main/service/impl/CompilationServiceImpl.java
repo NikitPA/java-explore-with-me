@@ -5,6 +5,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.exception.CompilationNotFoundException;
 import ru.practicum.main.model.Compilation;
 import ru.practicum.main.model.Event;
@@ -19,12 +20,14 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CompilationServiceImpl implements CompilationService {
 
     private final CompilationRepository compilationRepository;
     private final EventService eventService;
     private final ModelMapper mapper;
 
+    @Transactional
     @Override
     public CompilationDto createCompilation(NewCompilationDto newCompilationDto) {
         Compilation compilation = mapper.map(newCompilationDto, Compilation.class);
@@ -35,6 +38,7 @@ public class CompilationServiceImpl implements CompilationService {
         return mapper.map(compilationSave, CompilationDto.class);
     }
 
+    @Transactional
     @Override
     public void deleteCompilation(int compId) {
         Compilation compilation = compilationRepository.findById(compId)
@@ -42,6 +46,7 @@ public class CompilationServiceImpl implements CompilationService {
         compilationRepository.delete(compilation);
     }
 
+    @Transactional
     @Override
     public void deleteEventFromCompilation(int compId, int eventId) {
         Compilation compilation = compilationRepository.findById(compId)
@@ -51,6 +56,7 @@ public class CompilationServiceImpl implements CompilationService {
         compilationRepository.save(compilation);
     }
 
+    @Transactional
     @Override
     public void addEventFromCompilation(int compId, int eventId) {
         Compilation compilation = compilationRepository.findById(compId)
@@ -60,6 +66,7 @@ public class CompilationServiceImpl implements CompilationService {
         compilationRepository.save(compilation);
     }
 
+    @Transactional
     @Override
     public void unpinCompilation(int compId) {
         Compilation compilation = compilationRepository.findById(compId)
@@ -68,6 +75,7 @@ public class CompilationServiceImpl implements CompilationService {
         compilationRepository.save(compilation);
     }
 
+    @Transactional
     @Override
     public void pinCompilation(int compId) {
         Compilation compilation = compilationRepository.findById(compId)

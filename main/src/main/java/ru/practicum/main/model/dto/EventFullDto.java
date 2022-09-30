@@ -1,15 +1,16 @@
 package ru.practicum.main.model.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ru.practicum.main.CustomLocalDateTimeSerializer;
 import ru.practicum.main.model.Location;
 import ru.practicum.main.model.State;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode
 @NoArgsConstructor
 public class EventFullDto {
 

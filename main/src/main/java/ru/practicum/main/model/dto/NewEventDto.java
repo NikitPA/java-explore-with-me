@@ -1,8 +1,7 @@
 package ru.practicum.main.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ru.practicum.main.model.Location;
 
 import javax.validation.constraints.Future;
@@ -11,7 +10,9 @@ import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode
 @NoArgsConstructor
 public class NewEventDto {
 

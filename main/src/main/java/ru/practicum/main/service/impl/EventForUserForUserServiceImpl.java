@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.exception.EventNotFoundException;
 import ru.practicum.main.exception.UserNotFoundException;
 import ru.practicum.main.model.*;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class EventForUserForUserServiceImpl implements EventForUserService {
 
     private final CategoryService categoryService;
@@ -30,6 +32,7 @@ public class EventForUserForUserServiceImpl implements EventForUserService {
     private final EventRepository eventRepository;
     private final LocationRepository locationRepository;
     private final ModelMapper mapper;
+    private final int noEarlierThanTwoHours = 2;
 
     @Override
     public List<EventShortDto> findUserEvents(int userId, int from, int size) {
@@ -42,6 +45,7 @@ public class EventForUserForUserServiceImpl implements EventForUserService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public EventFullDto changeEvent(int userId, UpdateEventRequest updateEventRequest) {
         User user = userRepository.findById(userId)
@@ -85,6 +89,7 @@ public class EventForUserForUserServiceImpl implements EventForUserService {
         );
     }
 
+    @Transactional
     @Override
     public EventFullDto createEvent(int userId, NewEventDto newEventDto) {
         User user = userRepository.findById(userId)
@@ -95,7 +100,7 @@ public class EventForUserForUserServiceImpl implements EventForUserService {
                 .orElseGet(() -> locationRepository.save(newEventDto.getLocation()));
         LocalDateTime eventDate = newEventDto.getEventDate();
         LocalDateTime createdOn = LocalDateTime.now();
-        if (eventDate.isAfter(createdOn.plusHours(2))) {
+        if (eventDate.isAfter(createdOn.plusHours(noEarlierThanTwoHours))) {
             Event event = mapper.map(newEventDto, Event.class);
             event.setInitiator(user);
             event.setCreatedOn(createdOn);
@@ -127,6 +132,7 @@ public class EventForUserForUserServiceImpl implements EventForUserService {
         );
     }
 
+    @Transactional
     @Override
     public EventFullDto cancelEvent(int userId, int eventId) {
         User user = userRepository.findById(userId)

@@ -1,14 +1,16 @@
 package ru.practicum.main.model.dto;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode
 @NoArgsConstructor
 public class NewCategoryDto {
 
     @NotBlank(message = "Name isn't empty.")
     private String name;
+
 }

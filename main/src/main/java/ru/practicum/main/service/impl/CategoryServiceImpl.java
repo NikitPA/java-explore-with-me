@@ -5,6 +5,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.exception.CategoryNotFoundException;
 import ru.practicum.main.model.Category;
 import ru.practicum.main.model.dto.CategoryDto;
@@ -18,24 +19,28 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
 
     private final ModelMapper mapper;
 
+    @Transactional
     @Override
     public CategoryDto createCategory(NewCategoryDto categoryDto) {
         Category category = categoryRepository.save(mapper.map(categoryDto, Category.class));
         return mapper.map(category, CategoryDto.class);
     }
 
+    @Transactional
     @Override
     public void deleteCategory(int catId) {
         Category category = findCategory(catId);
         categoryRepository.delete(category);
     }
 
+    @Transactional
     @Override
     public CategoryDto modificationCategory(CategoryDto categoryDto) {
         findCategory(categoryDto.getId());

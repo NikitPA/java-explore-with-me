@@ -2,6 +2,7 @@ package ru.practicum.main.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.exception.EventNotFoundException;
 import ru.practicum.main.exception.RequestNotFoundException;
 import ru.practicum.main.exception.UserNotFoundException;
@@ -18,11 +19,13 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ParticipationRequestServiceImpl implements ParticipationRequestService {
 
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
     private final ParticipationRequestRepository requestRepository;
+    private final int noLimit = 0;
 
     @Override
     public List<ParticipationRequestDto> getInformationRequests(int userId, int eventId) {
@@ -41,6 +44,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
         throw new IllegalArgumentException("Event isn't belong User.");
     }
 
+    @Transactional
     @Override
     public ParticipationRequestDto confirmRequest(int userId, int eventId, int reqId) {
         User user = userRepository.findById(userId)
@@ -55,7 +59,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
         throw new IllegalArgumentException("Event isn't belong User.");
     }
 
-
+    @Transactional
     @Override
     public ParticipationRequestDto rejectRequest(int userId, int eventId, int reqId) {
         User user = userRepository.findById(userId)
@@ -73,6 +77,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
         throw new IllegalArgumentException("Request has already been rejected.");
     }
 
+    @Transactional
     @Override
     public ParticipationRequestDto createRequest(int userId, int eventId) {
         User user = userRepository.findById(userId)
@@ -81,7 +86,8 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
                 .orElseThrow(() -> new EventNotFoundException(eventId));
         if (user.getId() != event.getInitiator().getId()) {
             if (event.getState().equals(State.PUBLISHED)) {
-                if (event.getParticipantLimit() > event.getConfirmedRequests() || event.getParticipantLimit() == 0) {
+                if (event.getParticipantLimit() > event.getConfirmedRequests() ||
+                        event.getParticipantLimit() == noLimit) {
                     ParticipationRequest saveRequest = requestRepository.save(createRequest(user, event));
                     return new ParticipationRequestDto(saveRequest.getId(), saveRequest.getEvent().getId(),
                             saveRequest.getCreated(), saveRequest.getRequester().getId(), saveRequest.getStatus());
@@ -105,6 +111,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public ParticipationRequestDto cancelYourParticipationRequest(int userId, int reqId) {
         User user = userRepository.findById(userId)

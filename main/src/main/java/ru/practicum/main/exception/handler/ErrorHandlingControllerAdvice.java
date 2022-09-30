@@ -97,4 +97,16 @@ public class ErrorHandlingControllerAdvice {
         );
     }
 
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ApiError onException(Throwable e) {
+        return new ApiError(
+                List.of(e.getMessage()),
+                "INTERNAL_SERVER_ERROR",
+                "INTERNAL_SERVER_ERROR.",
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                LocalDateTime.now()
+        );
+    }
+
 }

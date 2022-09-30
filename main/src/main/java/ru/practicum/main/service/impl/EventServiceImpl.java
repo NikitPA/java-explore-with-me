@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.client.EventClient;
 import ru.practicum.main.exception.EventNotFoundException;
 import ru.practicum.main.model.*;
@@ -29,6 +30,7 @@ import static ru.practicum.main.model.QEvent.event;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
@@ -36,7 +38,9 @@ public class EventServiceImpl implements EventService {
     private final UserService userService;
     private final EventClient eventClient;
     private final ModelMapper mapper;
+    private final int anHourBeforePublication = 1;
 
+    @Transactional
     @Override
     public EventFullDto editEvent(AdminUpdateEventRequest updateEvent, int eventId) {
         Event event = findById(eventId);
@@ -71,13 +75,14 @@ public class EventServiceImpl implements EventService {
         return mapper.map(saveEvent, EventFullDto.class);
     }
 
+    @Transactional
     @Override
     public EventFullDto publishEvent(int eventId) {
         LocalDateTime datePublished = LocalDateTime.now();
         Event event = findById(eventId);
         State eventState = event.getState();
         LocalDateTime eventDate = event.getEventDate();
-        if (eventDate.isAfter(datePublished.plusHours(1))
+        if (eventDate.isAfter(datePublished.plusHours(anHourBeforePublication))
                 && eventState.equals(State.PENDING)) {
             event.setState(State.PUBLISHED);
             event.setPublishedOn(datePublished);
@@ -90,6 +95,7 @@ public class EventServiceImpl implements EventService {
         );
     }
 
+    @Transactional
     @Override
     public EventFullDto rejectEvent(int eventId) {
         Event event = findById(eventId);
@@ -164,8 +170,7 @@ public class EventServiceImpl implements EventService {
     public EventFullDto findEventForUser(int id, HttpServletRequest request) {
         Event event = eventRepository.findEventByIdAndState(id, State.PUBLISHED)
                 .orElseThrow(() -> new EventNotFoundException(id));
-        int views = event.getViews();
-        event.setViews(++views);
+        event.addView();
         saveStatistic(request);
         return mapper.map(event, EventFullDto.class);
     }
