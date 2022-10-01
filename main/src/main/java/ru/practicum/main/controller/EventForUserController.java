@@ -8,7 +8,6 @@ import ru.practicum.main.model.UpdateEventRequest;
 import ru.practicum.main.model.dto.EventFullDto;
 import ru.practicum.main.model.dto.EventShortDto;
 import ru.practicum.main.model.dto.NewEventDto;
-import ru.practicum.main.model.dto.UserDto;
 import ru.practicum.main.service.EventForUserService;
 
 import javax.validation.Valid;
