@@ -17,5 +17,5 @@ public interface EventForUserService {
 
     EventFullDto cancelEvent(int userId, int eventId);
 
-    List<EventFullDto> getEventsUserBySubscription(int userId, int from, int size);
+    List<EventFullDto> getEventsOnUserSubscriptions(int userId, int from, int size);
 }

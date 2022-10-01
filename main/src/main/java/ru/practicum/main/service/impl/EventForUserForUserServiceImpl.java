@@ -155,7 +155,7 @@ public class EventForUserForUserServiceImpl implements EventForUserService {
     }
 
     @Override
-    public List<EventFullDto> getEventsUserBySubscription(int userId, int from, int size) {
+    public List<EventFullDto> getEventsOnUserSubscriptions(int userId, int from, int size) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
         Predicate predicate = QPredicates.builder()

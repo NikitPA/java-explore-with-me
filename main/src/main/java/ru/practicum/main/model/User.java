@@ -27,11 +27,11 @@ public class User {
     @Column(nullable = false)
     private String email;
 
-    private boolean isSubscribe;
+    private boolean subscriptionAllowed;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
-            name = "user_friends",
+            name = "subscriptions",
             joinColumns = {@JoinColumn(name = "users_id")},
             inverseJoinColumns = {@JoinColumn(name = "subscription_id")}
     )

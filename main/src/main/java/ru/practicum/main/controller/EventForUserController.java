@@ -58,12 +58,12 @@ public class EventForUserController {
     }
 
     @GetMapping("/{userId}/events/subscriptions")
-    public ResponseEntity<List<EventFullDto>> getUsersBySubscription(
+    public ResponseEntity<List<EventFullDto>> getEventsOnUserSubscriptions(
             @PathVariable(name = "userId") Integer userId,
             @RequestParam(name = "from", defaultValue = "0") int from,
             @RequestParam(name = "size", defaultValue = "10") int size
     ) {
-        return new ResponseEntity<>(eventForUserService.getEventsUserBySubscription(userId, from, size), HttpStatus.OK);
+        return new ResponseEntity<>(eventForUserService.getEventsOnUserSubscriptions(userId, from, size), HttpStatus.OK);
     }
 
 }

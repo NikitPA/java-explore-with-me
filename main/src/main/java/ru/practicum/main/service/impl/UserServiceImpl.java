@@ -61,16 +61,16 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public UserDto addSubscription(int userId, int friendId) {
-        if (userId == friendId) {
+    public UserDto addSubscription(int userId, int subscriptionId) {
+        if (userId == subscriptionId) {
             throw new IllegalArgumentException("Сan't subscribe to yourself.");
         }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
-        User friend = userRepository.findById(friendId)
+        User subscription = userRepository.findById(subscriptionId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
-        if (friend.isSubscribe()) {
-            user.addFriend(friend);
+        if (subscription.isSubscriptionAllowed()) {
+            user.addFriend(subscription);
             User saveUser = userRepository.save(user);
             return mapper.map(saveUser, UserDto.class);
         }
@@ -82,12 +82,12 @@ public class UserServiceImpl implements UserService {
     public UserDto disableSubscriptions(Integer userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
-        if (user.isSubscribe()) {
-            user.setSubscribe(false);
+        if (user.isSubscriptionAllowed()) {
+            user.setSubscriptionAllowed(false);
             User saveUser = userRepository.save(user);
             return mapper.map(saveUser, UserDto.class);
         }
-        throw new IllegalArgumentException("The user's subscriptions are already banned");
+        throw new IllegalArgumentException("The user's subscriptions are already forbidden");
     }
 
     @Transactional
@@ -95,8 +95,8 @@ public class UserServiceImpl implements UserService {
     public UserDto allowSubscriptions(Integer userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
-        if (!user.isSubscribe()) {
-            user.setSubscribe(true);
+        if (!user.isSubscriptionAllowed()) {
+            user.setSubscriptionAllowed(true);
             User saveUser = userRepository.save(user);
             return mapper.map(saveUser, UserDto.class);
         }

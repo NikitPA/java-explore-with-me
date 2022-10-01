@@ -24,6 +24,6 @@ public class UserDto {
     @NotNull
     private String email;
 
-    private boolean isSubscribe = false;
+    private boolean subscriptionAllowed;
 
 }
