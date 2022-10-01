@@ -1,7 +1,9 @@
 package ru.practicum.main.service.impl;
 
+import com.querydsl.core.types.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,7 @@ import ru.practicum.main.repository.LocationRepository;
 import ru.practicum.main.repository.UserRepository;
 import ru.practicum.main.service.CategoryService;
 import ru.practicum.main.service.EventForUserService;
+import ru.practicum.main.util.QPredicates;
 
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
@@ -149,6 +152,20 @@ public class EventForUserForUserServiceImpl implements EventForUserService {
                         "Event {0} isn't belong User {1} or EventState isn't PENDING", eventId, userId
                 )
         );
+    }
+
+    @Override
+    public List<EventFullDto> getEventsUserBySubscription(int userId, int from, int size) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        Predicate predicate = QPredicates.builder()
+                .add(user.getSubscriptions(), QEvent.event.initiator::in)
+                .add(State.PUBLISHED, QEvent.event.state::eq)
+                .buildAnd();
+        Page<Event> events = eventRepository.findAll(predicate, PageRequest.of(from / size, size));
+        return events.stream()
+                .map(event -> mapper.map(event, EventFullDto.class))
+                .collect(Collectors.toList());
     }
 
 }

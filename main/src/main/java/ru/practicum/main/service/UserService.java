@@ -14,4 +14,12 @@ public interface UserService {
     List<UserDto> findUsers(int from, int size, Integer[] ids);
 
     List<User> findUsersForIds(Integer[] ids);
+
+    UserDto addSubscription(int userId, int friendId);
+
+    UserDto disableSubscriptions(Integer userId);
+
+    UserDto allowSubscriptions(Integer userId);
+
+    List<UserDto> getAllSubscriptionsUser(Integer userId);
 }

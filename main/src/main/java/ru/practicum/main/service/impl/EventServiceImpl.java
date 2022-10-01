@@ -175,6 +175,8 @@ public class EventServiceImpl implements EventService {
         return mapper.map(event, EventFullDto.class);
     }
 
+
+
     private void saveStatistic(HttpServletRequest request) {
         EndpointHit endpointHit = new EndpointHit(
                 null, "main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now()

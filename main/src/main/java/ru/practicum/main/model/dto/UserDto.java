@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class UserDto {
 
-    private int id;
+    private Integer id;
 
     @NotBlank
     private String name;
@@ -20,5 +20,7 @@ public class UserDto {
     @Email
     @NotNull
     private String email;
+
+    private boolean isSubscribe = false;
 
 }

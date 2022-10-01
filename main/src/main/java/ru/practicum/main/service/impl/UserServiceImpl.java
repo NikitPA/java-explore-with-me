@@ -14,6 +14,7 @@ import ru.practicum.main.service.UserService;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,4 +58,59 @@ public class UserServiceImpl implements UserService {
     public List<User> findUsersForIds(Integer[] ids) {
         return userRepository.findAllById(Arrays.asList(ids));
     }
+
+    @Transactional
+    @Override
+    public UserDto addSubscription(int userId, int friendId) {
+        if (userId == friendId) {
+            throw new IllegalArgumentException("Сan't subscribe to yourself.");
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        User friend = userRepository.findById(friendId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        if (friend.isSubscribe()) {
+            user.addFriend(friend);
+            User saveUser = userRepository.save(user);
+            return mapper.map(saveUser, UserDto.class);
+        }
+        throw new IllegalArgumentException("The user has forbidden to subscribe to himself");
+    }
+
+    @Transactional
+    @Override
+    public UserDto disableSubscriptions(Integer userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        if (user.isSubscribe()) {
+            user.setSubscribe(false);
+            User saveUser = userRepository.save(user);
+            return mapper.map(saveUser, UserDto.class);
+        }
+        throw new IllegalArgumentException("The user's subscriptions are already banned");
+    }
+
+    @Transactional
+    @Override
+    public UserDto allowSubscriptions(Integer userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        if (!user.isSubscribe()) {
+            user.setSubscribe(true);
+            User saveUser = userRepository.save(user);
+            return mapper.map(saveUser, UserDto.class);
+        }
+        throw new IllegalArgumentException("The user already has subscriptions allowed");
+    }
+
+    @Override
+    public List<UserDto> getAllSubscriptionsUser(Integer userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        Set<User> subscriptions = user.getSubscriptions();
+        return subscriptions.stream()
+                .map(userSub -> mapper.map(userSub, UserDto.class))
+                .collect(Collectors.toList());
+    }
+
 }

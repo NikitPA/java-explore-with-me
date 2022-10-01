@@ -8,6 +8,7 @@ import ru.practicum.main.model.UpdateEventRequest;
 import ru.practicum.main.model.dto.EventFullDto;
 import ru.practicum.main.model.dto.EventShortDto;
 import ru.practicum.main.model.dto.NewEventDto;
+import ru.practicum.main.model.dto.UserDto;
 import ru.practicum.main.service.EventForUserService;
 
 import javax.validation.Valid;
@@ -55,6 +56,15 @@ public class EventForUserController {
                                                     @PathVariable(name = "eventId") int eventId
     ) {
         return new ResponseEntity<>(eventForUserService.cancelEvent(userId, eventId), HttpStatus.OK);
+    }
+
+    @GetMapping("/{userId}/subscription")
+    public ResponseEntity<List<EventFullDto>> getUsersBySubscription(
+            @PathVariable(name = "userId") Integer userId,
+            @RequestParam(name = "from", defaultValue = "0") int from,
+            @RequestParam(name = "size", defaultValue = "10") int size
+    ) {
+        return new ResponseEntity<>(eventForUserService.getEventsUserBySubscription(userId, from, size), HttpStatus.OK);
     }
 
 }
