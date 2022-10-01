@@ -63,7 +63,7 @@ create table if not exists compilation_event (
     constraint fk_compilation_event_on_event foreign key (event_id) references events,
     constraint fk_compilation_event_on_compilation foreign key (compilation_id) references compilations
 );
-create table user_friends (
+create table if not exists user_friends (
     users_id int4 not null,
     subscription_id int4 not null,
     primary key (users_id, subscription_id),

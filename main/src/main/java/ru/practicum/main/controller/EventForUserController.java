@@ -57,7 +57,7 @@ public class EventForUserController {
         return new ResponseEntity<>(eventForUserService.cancelEvent(userId, eventId), HttpStatus.OK);
     }
 
-    @GetMapping("/{userId}/subscription")
+    @GetMapping("/{userId}/events/subscriptions")
     public ResponseEntity<List<EventFullDto>> getUsersBySubscription(
             @PathVariable(name = "userId") Integer userId,
             @RequestParam(name = "from", defaultValue = "0") int from,

@@ -33,23 +33,23 @@ public class UserController {
         userService.delete(userId);
     }
 
-    @PatchMapping("/users/{userId}/subscription/{subscriptionId}")
+    @PatchMapping("/users/{userId}/subscriptions/{subscriptionId}")
     public ResponseEntity<UserDto> addSubscription(@PathVariable(name = "subscriptionId") Integer subscriptionId,
                                                    @PathVariable(name = "userId") Integer userId) {
         return new ResponseEntity<>(userService.addSubscription(userId, subscriptionId), HttpStatus.OK);
     }
 
-    @PatchMapping("/users/{userId}/subscription/disable")
+    @PatchMapping("/users/{userId}/subscriptions/disable")
     public ResponseEntity<UserDto> disableSubscriptions(@PathVariable(name = "userId") Integer userId) {
         return new ResponseEntity<>(userService.disableSubscriptions(userId), HttpStatus.OK);
     }
 
-    @PatchMapping("/users/{userId}/subscription/allow")
+    @PatchMapping("/users/{userId}/subscriptions/allow")
     public ResponseEntity<UserDto> allowSubscriptions(@PathVariable(name = "userId") Integer userId) {
         return new ResponseEntity<>(userService.allowSubscriptions(userId), HttpStatus.OK);
     }
 
-    @GetMapping("/users/{userId}/subscription")
+    @GetMapping("/users/{userId}/subscriptions")
     public ResponseEntity<List<UserDto>> getAllSubscriptionsUser(@PathVariable(name = "userId") Integer userId) {
         return new ResponseEntity<>(userService.getAllSubscriptionsUser(userId), HttpStatus.OK);
     }
