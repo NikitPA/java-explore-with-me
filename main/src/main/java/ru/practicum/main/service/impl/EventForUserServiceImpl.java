@@ -1,13 +1,20 @@
 package ru.practicum.main.service.impl;
 
+import com.querydsl.core.types.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.main.exception.EventNotFoundException;
-import ru.practicum.main.exception.UserNotFoundException;
-import ru.practicum.main.model.*;
+import ru.practicum.main.exception.NotFoundException;
+import ru.practicum.main.model.Category;
+import ru.practicum.main.model.Event;
+import ru.practicum.main.model.Location;
+import ru.practicum.main.model.QEvent;
+import ru.practicum.main.model.State;
+import ru.practicum.main.model.UpdateEventRequest;
+import ru.practicum.main.model.User;
 import ru.practicum.main.model.dto.EventFullDto;
 import ru.practicum.main.model.dto.EventShortDto;
 import ru.practicum.main.model.dto.NewEventDto;
@@ -16,16 +23,15 @@ import ru.practicum.main.repository.LocationRepository;
 import ru.practicum.main.repository.UserRepository;
 import ru.practicum.main.service.CategoryService;
 import ru.practicum.main.service.EventForUserService;
+import ru.practicum.main.util.QPredicates;
 
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class EventForUserForUserServiceImpl implements EventForUserService {
+public class EventForUserServiceImpl implements EventForUserService {
 
     private final CategoryService categoryService;
     private final UserRepository userRepository;
@@ -35,25 +41,25 @@ public class EventForUserForUserServiceImpl implements EventForUserService {
     private final int noEarlierThanTwoHours = 2;
 
     @Override
-    public List<EventShortDto> findUserEvents(int userId, int from, int size) {
+    public Page<EventShortDto> findUserEvents(int userId, int from, int size) {
         int page = from / size;
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
-        List<Event> events = eventRepository.findAllByInitiator(user, PageRequest.of(page, size));
-        return events.stream()
-                .map(event -> mapper.map(event, EventShortDto.class))
-                .collect(Collectors.toList());
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("User {0} not found", userId)));
+        return eventRepository
+                .findAllByInitiator(user, PageRequest.of(page, size))
+                .map(event -> mapper.map(event, EventShortDto.class));
     }
 
     @Transactional
     @Override
     public EventFullDto changeEvent(int userId, UpdateEventRequest updateEventRequest) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("User {0} not found", userId)));
         Event event = eventRepository
                 .findById(updateEventRequest.getEventId()).orElseThrow(
-                        () -> new EventNotFoundException(updateEventRequest.getEventId())
-                );
+                        () -> new NotFoundException(
+                                MessageFormat.format("Event {0} not found.", updateEventRequest.getEventId())
+                        ));
         if (!event.getState().equals(State.PUBLISHED) && user.getId() == event.getInitiator().getId()) {
             if (updateEventRequest.getAnnotation() != null) {
                 event.setAnnotation(updateEventRequest.getAnnotation());
@@ -93,7 +99,7 @@ public class EventForUserForUserServiceImpl implements EventForUserService {
     @Override
     public EventFullDto createEvent(int userId, NewEventDto newEventDto) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("User {0} not found", userId)));
         Category category = categoryService.findCategory(newEventDto.getCategory());
         Location location = locationRepository
                 .findAllByLatAndLon(newEventDto.getLocation().getLat(), newEventDto.getLocation().getLon())
@@ -121,9 +127,9 @@ public class EventForUserForUserServiceImpl implements EventForUserService {
     @Override
     public EventFullDto findEvent(int userId, int eventId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("User {0} not found", userId)));
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new EventNotFoundException(eventId));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("Event {0} not found.", eventId)));
         if (user.getId() == event.getInitiator().getId()) {
             return mapper.map(event, EventFullDto.class);
         }
@@ -136,9 +142,9 @@ public class EventForUserForUserServiceImpl implements EventForUserService {
     @Override
     public EventFullDto cancelEvent(int userId, int eventId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("User {0} not found", userId)));
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new EventNotFoundException(eventId));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("Event {0} not found.", eventId)));
         if (user.getId() == event.getInitiator().getId() && event.getState().equals(State.PENDING)) {
             event.setState(State.CANCELED);
             Event saveEvent = eventRepository.save(event);
@@ -149,6 +155,19 @@ public class EventForUserForUserServiceImpl implements EventForUserService {
                         "Event {0} isn't belong User {1} or EventState isn't PENDING", eventId, userId
                 )
         );
+    }
+
+    @Override
+    public Page<EventFullDto> getEventsOnUserSubscriptions(int userId, int from, int size) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("User {0} not found", userId)));
+        Predicate predicate = QPredicates.builder()
+                .add(user.getSubscriptions(), QEvent.event.initiator::in)
+                .add(State.PUBLISHED, QEvent.event.state::eq)
+                .buildAnd();
+        return eventRepository
+                .findAll(predicate, PageRequest.of(from / size, size))
+                .map(event -> mapper.map(event, EventFullDto.class));
     }
 
 }

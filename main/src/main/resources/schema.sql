@@ -5,8 +5,9 @@ create table if not exists categories (
                         );
 create table if not exists users (
     id  serial not null,
-    email varchar(255),
+    email varchar(55) not null unique,
     name varchar(55),
+    subscription_allowed boolean not null,
     primary key (id)
 );
 create table if not exists compilations (
@@ -61,4 +62,12 @@ create table if not exists compilation_event (
     primary key (compilation_id, event_id),
     constraint fk_compilation_event_on_event foreign key (event_id) references events,
     constraint fk_compilation_event_on_compilation foreign key (compilation_id) references compilations
+);
+create table if not exists subscriptions (
+    users_id int4 not null,
+    subscription_id int4 not null,
+    primary key (users_id, subscription_id),
+    constraint uq_subscription unique (subscription_id),
+    constraint fk_user_friends_on_users foreign key (subscription_id) references users,
+    constraint fk_user_friend_on_friend foreign key (users_id) references users
 );

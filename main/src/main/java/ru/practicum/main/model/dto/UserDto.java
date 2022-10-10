@@ -1,6 +1,9 @@
 package ru.practicum.main.model.dto;
 
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -12,7 +15,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class UserDto {
 
-    private int id;
+    private Integer id;
 
     @NotBlank
     private String name;
@@ -20,5 +23,7 @@ public class UserDto {
     @Email
     @NotNull
     private String email;
+
+    private boolean subscriptionAllowed;
 
 }

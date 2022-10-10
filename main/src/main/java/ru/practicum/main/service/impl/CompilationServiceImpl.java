@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.main.exception.CompilationNotFoundException;
+import ru.practicum.main.exception.NotFoundException;
 import ru.practicum.main.model.Compilation;
 import ru.practicum.main.model.Event;
 import ru.practicum.main.model.dto.CompilationDto;
@@ -15,7 +15,7 @@ import ru.practicum.main.repository.CompilationRepository;
 import ru.practicum.main.service.CompilationService;
 import ru.practicum.main.service.EventService;
 
-import java.util.List;
+import java.text.MessageFormat;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,7 +42,9 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public void deleteCompilation(int compId) {
         Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new CompilationNotFoundException(compId));
+                .orElseThrow(() -> new NotFoundException(
+                        MessageFormat.format("Compilation {0} not found.", compId))
+                );
         compilationRepository.delete(compilation);
     }
 
@@ -50,7 +52,9 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public void deleteEventFromCompilation(int compId, int eventId) {
         Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new CompilationNotFoundException(compId));
+                .orElseThrow(() -> new NotFoundException(
+                        MessageFormat.format("Compilation {0} not found.", compId))
+                );
         Event event = eventService.findById(eventId);
         compilation.getEvents().remove(event);
         compilationRepository.save(compilation);
@@ -60,7 +64,9 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public void addEventFromCompilation(int compId, int eventId) {
         Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new CompilationNotFoundException(compId));
+                .orElseThrow(() -> new NotFoundException(
+                        MessageFormat.format("Compilation {0} not found.", compId))
+                );
         Event event = eventService.findById(eventId);
         compilation.getEvents().add(event);
         compilationRepository.save(compilation);
@@ -70,7 +76,9 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public void unpinCompilation(int compId) {
         Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new CompilationNotFoundException(compId));
+                .orElseThrow(() -> new NotFoundException(
+                        MessageFormat.format("Compilation {0} not found.", compId))
+                );
         compilation.setPinned(false);
         compilationRepository.save(compilation);
     }
@@ -79,31 +87,33 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public void pinCompilation(int compId) {
         Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new CompilationNotFoundException(compId));
+                .orElseThrow(() -> new NotFoundException(
+                        MessageFormat.format("Compilation {0} not found.", compId))
+                );
         compilation.setPinned(true);
         compilationRepository.save(compilation);
     }
 
     @Override
-    public List<CompilationDto> findCompilations(int from, int size, Boolean pinned) {
+    public Page<CompilationDto> findCompilations(int from, int size, Boolean pinned) {
         int page = from / size;
         PageRequest pageRequest = PageRequest.of(page, size);
         if (pinned == null) {
-            Page<Compilation> compilations = compilationRepository.findAll(pageRequest);
-            return compilations.stream()
-                    .map(compilation -> mapper.map(compilation, CompilationDto.class))
-                    .collect(Collectors.toList());
+            return compilationRepository
+                    .findAll(pageRequest)
+                    .map(compilation -> mapper.map(compilation, CompilationDto.class));
         }
-        Page<Compilation> compilations = compilationRepository.findAllByPinned(pinned, pageRequest);
-        return compilations.stream()
-                .map(compilation -> mapper.map(compilation, CompilationDto.class))
-                .collect(Collectors.toList());
+        return compilationRepository
+                .findAllByPinned(pinned, pageRequest)
+                .map(compilation -> mapper.map(compilation, CompilationDto.class));
     }
 
     @Override
     public CompilationDto findCompilation(int compId) {
         Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new CompilationNotFoundException(compId));
+                .orElseThrow(() -> new NotFoundException(
+                        MessageFormat.format("Compilation {0} not found.", compId))
+                );
         return mapper.map(compilation, CompilationDto.class);
     }
 

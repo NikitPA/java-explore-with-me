@@ -6,16 +6,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.main.exception.CategoryNotFoundException;
+import ru.practicum.main.exception.NotFoundException;
 import ru.practicum.main.model.Category;
 import ru.practicum.main.model.dto.CategoryDto;
 import ru.practicum.main.model.dto.NewCategoryDto;
 import ru.practicum.main.repository.CategoryRepository;
 import ru.practicum.main.service.CategoryService;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -49,18 +49,19 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryDto> findCategories(int from, int size) {
+    public Page<CategoryDto> findCategories(int from, int size) {
         int page = from / size;
-        Page<Category> categoryPage = categoryRepository.findAll(PageRequest.of(page, size));
-        return categoryPage.stream()
-                .map(category -> mapper.map(category, CategoryDto.class))
-                .collect(Collectors.toList());
+        return categoryRepository
+                .findAll(PageRequest.of(page, size))
+                .map(category -> mapper.map(category, CategoryDto.class));
     }
 
     @Override
     public Category findCategory(int catId) {
         return categoryRepository.findById(catId)
-                .orElseThrow(() -> new CategoryNotFoundException(catId));
+                .orElseThrow(
+                        () -> new NotFoundException(MessageFormat.format("Category {0} not found.", catId))
+                );
     }
 
     @Override

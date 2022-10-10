@@ -3,16 +3,19 @@ package ru.practicum.main.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.main.exception.EventNotFoundException;
-import ru.practicum.main.exception.RequestNotFoundException;
-import ru.practicum.main.exception.UserNotFoundException;
-import ru.practicum.main.model.*;
+import ru.practicum.main.exception.NotFoundException;
+import ru.practicum.main.model.Event;
+import ru.practicum.main.model.ParticipationRequest;
+import ru.practicum.main.model.State;
+import ru.practicum.main.model.Status;
+import ru.practicum.main.model.User;
 import ru.practicum.main.model.dto.ParticipationRequestDto;
 import ru.practicum.main.repository.EventRepository;
 import ru.practicum.main.repository.ParticipationRequestRepository;
 import ru.practicum.main.repository.UserRepository;
 import ru.practicum.main.service.ParticipationRequestService;
 
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,9 +33,9 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     @Override
     public List<ParticipationRequestDto> getInformationRequests(int userId, int eventId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("User {0} not found", userId)));
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new EventNotFoundException(eventId));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("Event {0} not found.", eventId)));
         if (user.getId() == event.getInitiator().getId()) {
             List<ParticipationRequest> requests = requestRepository.findAllByEvent(event);
             return requests.stream()
@@ -48,11 +51,11 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     @Override
     public ParticipationRequestDto confirmRequest(int userId, int eventId, int reqId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("User {0} not found", userId)));
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new EventNotFoundException(eventId));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("Event {0} not found.", eventId)));
         ParticipationRequest request = requestRepository.findById(reqId)
-                .orElseThrow(() -> new RequestNotFoundException(reqId));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("Request {0} not found.", reqId)));
         if (user.getId() == event.getInitiator().getId() && request.getStatus().equals(Status.PENDING)) {
             return setStatusRequest(event, request);
         }
@@ -63,11 +66,11 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     @Override
     public ParticipationRequestDto rejectRequest(int userId, int eventId, int reqId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("User {0} not found", userId)));
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new EventNotFoundException(eventId));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("Event {0} not found.", eventId)));
         ParticipationRequest request = requestRepository.findById(reqId)
-                .orElseThrow(() -> new RequestNotFoundException(reqId));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("Request {0} not found.", reqId)));
         if (!request.getStatus().equals(Status.REJECTED) && user.getId() == event.getInitiator().getId()) {
             request.setStatus(Status.REJECTED);
             ParticipationRequest saveRequest = requestRepository.save(request);
@@ -81,9 +84,9 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     @Override
     public ParticipationRequestDto createRequest(int userId, int eventId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("User {0} not found", userId)));
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new EventNotFoundException(eventId));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("Event {0} not found.", eventId)));
         if (user.getId() != event.getInitiator().getId()) {
             if (event.getState().equals(State.PUBLISHED)) {
                 if (event.getParticipantLimit() > event.getConfirmedRequests() ||
@@ -102,7 +105,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     @Override
     public List<ParticipationRequestDto> findRequestsUser(int userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("User {0} not found", userId)));
         List<ParticipationRequest> requests = requestRepository.findAllByRequester(user);
         return requests.stream()
                 .map(request -> new ParticipationRequestDto(request.getId(), request.getEvent().getId(),
@@ -115,9 +118,9 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     @Override
     public ParticipationRequestDto cancelYourParticipationRequest(int userId, int reqId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("User {0} not found", userId)));
         ParticipationRequest request = requestRepository.findById(reqId)
-                .orElseThrow(() -> new RequestNotFoundException(reqId));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("Request {0} not found.", reqId)));
         if (user.getId() == request.getRequester().getId()) {
             request.setStatus(Status.CANCELED);
             ParticipationRequest saveRequest = requestRepository.save(request);

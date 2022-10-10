@@ -2,7 +2,6 @@ package ru.practicum.stats.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.stats.model.EndpointHit;
@@ -30,8 +29,8 @@ public class StatsController {
             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam LocalDateTime end,
             @RequestParam(required = false) String[] uris,
             @RequestParam(defaultValue = "false") Boolean unique
-            ) {
-        return new ResponseEntity<>(statsService.getStats(start, end, uris, unique), HttpStatus.OK);
+    ) {
+        return ResponseEntity.ok(statsService.getStats(start, end, uris, unique));
     }
 
 }

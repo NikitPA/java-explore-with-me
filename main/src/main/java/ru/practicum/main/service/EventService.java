@@ -1,12 +1,15 @@
 package ru.practicum.main.service;
 
-import ru.practicum.main.model.*;
+import org.springframework.data.domain.Page;
+import ru.practicum.main.model.AdminUpdateEventRequest;
+import ru.practicum.main.model.Event;
+import ru.practicum.main.model.SortEvent;
+import ru.practicum.main.model.State;
 import ru.practicum.main.model.dto.EventFullDto;
 import ru.practicum.main.model.dto.EventShortDto;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.List;
 
 public interface EventService {
 
@@ -16,14 +19,14 @@ public interface EventService {
 
     EventFullDto rejectEvent(int eventId);
 
-    List<EventFullDto> findEventsForAdmin(
+    Page<EventFullDto> findEventsForAdmin(
             Integer[] users, State[] states, Integer[] categories, LocalDateTime rangeStart,
             LocalDateTime rangeEnd, int from, int size
     );
 
     Event findById(int eventId);
 
-    List<EventShortDto> findEventsForUser(
+    Page<EventShortDto> findEventsForUser(
             String text, Integer[] categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd,
             Boolean onlyAvailable, SortEvent sortEvent, int from, int size, HttpServletRequest request
     );

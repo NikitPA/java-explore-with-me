@@ -1,6 +1,5 @@
 FROM --platform=linux/amd64 amazoncorretto:11-alpine-jdk
 COPY target/*.jar app.jar
-ENV JAVA_TOOL_OPTIONS -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8081
 ENV SPRING_DATASOURCE_URL=SPRING_DATASOURCE_URL \
                             POSTGRES_USER=POSTGRES_USER \
                             POSTGRES_PASSWORD=POSTGRES_PASSWORD \
