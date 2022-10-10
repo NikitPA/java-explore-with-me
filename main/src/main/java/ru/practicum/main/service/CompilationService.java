@@ -1,9 +1,8 @@
 package ru.practicum.main.service;
 
+import org.springframework.data.domain.Page;
 import ru.practicum.main.model.dto.CompilationDto;
 import ru.practicum.main.model.dto.NewCompilationDto;
-
-import java.util.List;
 
 public interface CompilationService {
     CompilationDto createCompilation(NewCompilationDto newCompilationDto);
@@ -18,7 +17,7 @@ public interface CompilationService {
 
     void pinCompilation(int compId);
 
-    List<CompilationDto> findCompilations(int from, int size, Boolean pinned);
+    Page<CompilationDto> findCompilations(int from, int size, Boolean pinned);
 
     CompilationDto findCompilation(int compId);
 }

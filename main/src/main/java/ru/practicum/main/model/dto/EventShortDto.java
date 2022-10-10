@@ -1,7 +1,10 @@
 package ru.practicum.main.model.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import ru.practicum.main.CustomLocalDateTimeSerializer;
 
 import java.time.LocalDateTime;

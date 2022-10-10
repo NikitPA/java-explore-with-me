@@ -6,12 +6,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.main.exception.UserNotFoundException;
+import ru.practicum.main.exception.NotFoundException;
 import ru.practicum.main.model.User;
 import ru.practicum.main.model.dto.UserDto;
 import ru.practicum.main.repository.UserRepository;
 import ru.practicum.main.service.UserService;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
+
     private final UserRepository userRepository;
     private final ModelMapper mapper;
 
@@ -34,7 +36,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void delete(int userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("User {0} not found", userId)));
         userRepository.delete(user);
     }
 
@@ -61,18 +64,17 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public UserDto addSubscription(int userId, int subscriptionId) {
+    public void addSubscription(int userId, int subscriptionId) {
         if (userId == subscriptionId) {
             throw new IllegalArgumentException("Сan't subscribe to yourself.");
         }
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
         User subscription = userRepository.findById(subscriptionId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("User {0} not found", userId)));
         if (subscription.isSubscriptionAllowed()) {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new NotFoundException(MessageFormat.format("User {0} not found", userId)));
             user.addFriend(subscription);
-            User saveUser = userRepository.save(user);
-            return mapper.map(saveUser, UserDto.class);
+            userRepository.save(user);
         }
         throw new IllegalArgumentException("The user has forbidden to subscribe to himself");
     }
@@ -81,7 +83,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto disableSubscriptions(Integer userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("User {0} not found", userId)));
         if (user.isSubscriptionAllowed()) {
             user.setSubscriptionAllowed(false);
             User saveUser = userRepository.save(user);
@@ -94,7 +96,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto allowSubscriptions(Integer userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("User {0} not found", userId)));
         if (!user.isSubscriptionAllowed()) {
             user.setSubscriptionAllowed(true);
             User saveUser = userRepository.save(user);
@@ -106,7 +108,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getAllSubscriptionsUser(Integer userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("User {0} not found", userId)));
         Set<User> subscriptions = user.getSubscriptions();
         return subscriptions.stream()
                 .map(userSub -> mapper.map(userSub, UserDto.class))

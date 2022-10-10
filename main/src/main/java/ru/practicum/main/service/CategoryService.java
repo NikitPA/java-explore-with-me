@@ -1,5 +1,6 @@
 package ru.practicum.main.service;
 
+import org.springframework.data.domain.Page;
 import ru.practicum.main.model.Category;
 import ru.practicum.main.model.dto.CategoryDto;
 import ru.practicum.main.model.dto.NewCategoryDto;
@@ -13,7 +14,7 @@ public interface CategoryService {
 
     CategoryDto modificationCategory(CategoryDto categoryDto);
 
-    List<CategoryDto> findCategories(int from, int size);
+    Page<CategoryDto> findCategories(int from, int size);
 
     Category findCategory(int catId);
 

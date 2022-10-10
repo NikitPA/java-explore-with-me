@@ -1,13 +1,14 @@
 package ru.practicum.main.service;
 
-import ru.practicum.main.model.dto.*;
+import org.springframework.data.domain.Page;
 import ru.practicum.main.model.UpdateEventRequest;
-
-import java.util.List;
+import ru.practicum.main.model.dto.EventFullDto;
+import ru.practicum.main.model.dto.EventShortDto;
+import ru.practicum.main.model.dto.NewEventDto;
 
 public interface EventForUserService {
 
-    List<EventShortDto> findUserEvents(int userId, int from, int size);
+    Page<EventShortDto> findUserEvents(int userId, int from, int size);
 
     EventFullDto changeEvent(int userId, UpdateEventRequest updateEventRequest);
 
@@ -17,5 +18,6 @@ public interface EventForUserService {
 
     EventFullDto cancelEvent(int userId, int eventId);
 
-    List<EventFullDto> getEventsOnUserSubscriptions(int userId, int from, int size);
+    Page<EventFullDto> getEventsOnUserSubscriptions(int userId, int from, int size);
+
 }

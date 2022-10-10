@@ -9,8 +9,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.client.EventClient;
-import ru.practicum.main.exception.EventNotFoundException;
-import ru.practicum.main.model.*;
+import ru.practicum.main.exception.NotFoundException;
+import ru.practicum.main.model.AdminUpdateEventRequest;
+import ru.practicum.main.model.Category;
+import ru.practicum.main.model.Event;
+import ru.practicum.main.model.SortEvent;
+import ru.practicum.main.model.State;
+import ru.practicum.main.model.User;
 import ru.practicum.main.model.dto.EndpointHit;
 import ru.practicum.main.model.dto.EventFullDto;
 import ru.practicum.main.model.dto.EventShortDto;
@@ -24,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static ru.practicum.main.model.QEvent.event;
 
@@ -111,7 +115,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventFullDto> findEventsForAdmin(
+    public Page<EventFullDto> findEventsForAdmin(
             Integer[] users, State[] states, Integer[] categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size
     ) {
         int page = from / size;
@@ -124,20 +128,19 @@ public class EventServiceImpl implements EventService {
                 .add(rangeStart, event.publishedOn::after)
                 .add(rangeEnd, event.publishedOn::before)
                 .buildAnd();
-        Page<Event> events = eventRepository.findAll(predicate, PageRequest.of(page, size));
-        return events.stream()
-                .map(event -> mapper.map(event, EventFullDto.class))
-                .collect(Collectors.toList());
+        return eventRepository
+                .findAll(predicate, PageRequest.of(page, size))
+                .map(findEvent -> mapper.map(findEvent, EventFullDto.class));
     }
 
     @Override
     public Event findById(int eventId) {
         return eventRepository.findById(eventId)
-                .orElseThrow(() -> new EventNotFoundException(eventId));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("Event {0} not found.", eventId)));
     }
 
     @Override
-    public List<EventShortDto> findEventsForUser(
+    public Page<EventShortDto> findEventsForUser(
             String text, Integer[] categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd,
             Boolean onlyAvailable, SortEvent sort, int from, int size, HttpServletRequest request
     ) {
@@ -156,20 +159,18 @@ public class EventServiceImpl implements EventService {
             qPredicates.add(event.confirmedRequests, event.participantLimit::goe);
         }
         Predicate predicate = qPredicates.buildAnd();
-        Page<Event> events = eventRepository.findAll(
-                predicate, PageRequest.of(page, size, sort.equals(SortEvent.EVENT_DATE) ?
-                        Sort.by("eventDate").descending() :
-                        Sort.by("views").descending()));
         saveStatistic(request);
-        return events.stream()
-                .map(event -> mapper.map(event, EventShortDto.class))
-                .collect(Collectors.toList());
+        return eventRepository
+                .findAll(predicate, PageRequest.of(page, size, sort.equals(SortEvent.EVENT_DATE) ?
+                        Sort.by("eventDate").descending() :
+                        Sort.by("views").descending()))
+                .map(findEvent -> mapper.map(findEvent, EventShortDto.class));
     }
 
     @Override
     public EventFullDto findEventForUser(int id, HttpServletRequest request) {
         Event event = eventRepository.findEventByIdAndState(id, State.PUBLISHED)
-                .orElseThrow(() -> new EventNotFoundException(id));
+                .orElseThrow(() -> new NotFoundException(MessageFormat.format("Event {0} not found.", id)));
         event.addView();
         saveStatistic(request);
         return mapper.map(event, EventFullDto.class);

@@ -15,7 +15,7 @@ public interface UserService {
 
     List<User> findUsersForIds(Integer[] ids);
 
-    UserDto addSubscription(int userId, int subscriptionId);
+    void addSubscription(int userId, int subscriptionId);
 
     UserDto disableSubscriptions(Integer userId);
 
